@@ -1,0 +1,19 @@
+{
+  "name": "wdv3322-0-assignment",
+  "version": "1.0.0",
+  "description": "NodeJS app",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "NodeJS",
+    "API"
+  ],
+  "author": "Stephen Brown",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.1"
+  }
+}
