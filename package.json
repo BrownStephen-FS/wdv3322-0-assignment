@@ -4,7 +4,7 @@
   "description": "NodeJS app",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "start": "nodemon server"
   },
   "keywords": [
