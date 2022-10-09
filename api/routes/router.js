@@ -1,16 +1,91 @@
 const express = require("express");
 const router = express.Router();
+const User = require("../model/user");
 const messages = require("../../messages/messages");
+const bcrypt = require("bcrypt");
+const { findUser, saveUser } = require("../../db/db-users");
+const mongoose = require("mongoose");
 
 router.post("/signup", (req, res) => {
-  res.status(200).json({
-    message: messages.signUp,
+  findUser({ email: req.body.email }).then((result) => {
+    if (result) {
+      res.status(403).json({ message: messages.duplicateUser });
+    } else {
+      bcrypt.hash(req.body.password, 10, (err, hash) => {
+        if (err) {
+          res.status(400).json({ message: err.message });
+        } else {
+          const user = new User({
+            _id: mongoose.Types.ObjectId(),
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            address: req.body.address,
+            city: req.body.city,
+            state: req.body.state,
+            zip: req.body.zip,
+            email: req.body.email,
+            password: hash,
+          });
+          saveUser(user)
+            .then((result) => {
+              res.status(200).json({
+                message: "New user created!",
+                user: {
+                  firstName: result.firstName,
+                  lastName: result.lastName,
+                  address: result.address,
+                  city: result.city,
+                  state: result.state,
+                  zip: result.zip,
+                  email: result.email,
+                  password: result.password,
+                },
+              });
+            })
+            .catch((err) =>
+              res.status(400).json({
+                error: {
+                  message: err.message,
+                },
+              })
+            );
+        }
+      });
+    }
   });
 });
 
 router.post("/login", (req, res) => {
-  res.status(200).json({
-    message: messages.logIn,
+  findUser({ email: req.body.email }).then((result) => {
+    if (!result) {
+      res.status(403).json({ message: messages.userNotFound });
+    } else {
+      const user = result;
+      bcrypt.compare(req.body.password, user.password, (err, result) => {
+        if (err) {
+          res.status(400).json({ message: err.message });
+        } else if (result) {
+          res.status(200).json({
+            message: "Login Successful",
+            result: result,
+            user: {
+              firstName: user.firstName,
+              lastName: user.lastName,
+              address: user.address,
+              city: user.city,
+              state: user.state,
+              zip: user.zip,
+              email: user.email,
+              password: user.password,
+            },
+          });
+        } else {
+          res.status(401).json({
+            message: "Invalid Credentials! Check password and try again.",
+          });
+        }
+      });
+    }
   });
 });
 
