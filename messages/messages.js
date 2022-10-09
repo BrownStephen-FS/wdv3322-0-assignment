@@ -4,4 +4,5 @@ module.exports = {
   connectionSuccessful: "MongoDB connection was successful",
   duplicateUser: "Duplicate User! Change email and try again.",
   userNotFound: "User not found! Please create an account or check credentials and try again.",
+  profile: "/profile - GET"
 };
