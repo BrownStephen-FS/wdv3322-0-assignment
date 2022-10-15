@@ -5,6 +5,9 @@ const messages = require("../../messages/messages");
 const bcrypt = require("bcrypt");
 const { findUser, saveUser } = require("../../db/db-users");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const checkAuth = require("../../auth/checkAuth");
+require("dotenv").config();
 
 router.post("/signup", (req, res) => {
   findUser({ email: req.body.email }).then((result) => {
@@ -29,7 +32,7 @@ router.post("/signup", (req, res) => {
           saveUser(user)
             .then((result) => {
               res.status(200).json({
-                message: "New user created!",
+                message: messages.newUser,
                 user: {
                   firstName: result.firstName,
                   lastName: result.lastName,
@@ -65,9 +68,17 @@ router.post("/login", (req, res) => {
         if (err) {
           res.status(400).json({ message: err.message });
         } else if (result) {
+          const token = jwt.sign(
+            { email: user.email, password: user.password },
+            process.env.key
+          );
           res.status(200).json({
-            message: "Login Successful",
+            message: messages.loginSuccess,
             result: result,
+            jwt_response: {
+              firstName: user.firstName,
+              token: token,
+            },
             user: {
               firstName: user.firstName,
               lastName: user.lastName,
@@ -81,7 +92,7 @@ router.post("/login", (req, res) => {
           });
         } else {
           res.status(401).json({
-            message: "Invalid Credentials! Check password and try again.",
+            message: messages.invalidCreds,
           });
         }
       });
@@ -89,9 +100,9 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.get("/profile", (req, res) => {
+router.get("/profile", checkAuth, (req, res, next) => {
   res.status(200).json({
-    message: messages.profile,
+    message: req.userData,
   });
 });
 
