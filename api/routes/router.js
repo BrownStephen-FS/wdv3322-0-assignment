@@ -31,7 +31,7 @@ router.post("/signup", (req, res) => {
           });
           saveUser(user)
             .then((result) => {
-              res.status(200).json({
+              res.status(201).json({
                 message: messages.newUser,
                 user: {
                   firstName: result.firstName,
@@ -74,21 +74,8 @@ router.post("/login", (req, res) => {
           );
           res.status(200).json({
             message: messages.loginSuccess,
-            result: result,
-            jwt_response: {
-              firstName: user.firstName,
-              token: token,
-            },
-            user: {
-              firstName: user.firstName,
-              lastName: user.lastName,
-              address: user.address,
-              city: user.city,
-              state: user.state,
-              zip: user.zip,
-              email: user.email,
-              password: user.password,
-            },
+            name: user.firstName,
+            token: token,
           });
         } else {
           res.status(401).json({
